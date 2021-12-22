@@ -32,6 +32,12 @@ public :
 		inActor->SetRootComponent(*inComponent); 
 	}
 
+	template<typename T> static void CreateActorComponent(AActor* inActor, T** inComponent,
+		FName inName)
+	{
+		*inComponent = inActor->CreateDefaultSubobject<T>(inName);
+	}
+
 	template<typename T> static void GetClass(TSubclassOf<T>* outClass, FString InPath)
 	{
 		ConstructorHelpers::FClassFinder<T> asset(*InPath);

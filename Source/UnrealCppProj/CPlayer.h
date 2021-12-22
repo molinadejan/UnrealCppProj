@@ -5,7 +5,6 @@
 #include "IRifle.h"
 #include "CPlayer.generated.h"
 
-
 UCLASS()
 class UNREALCPPPROJ_API ACPlayer : public ACharacter , public IIRifle
 {
@@ -21,13 +20,16 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+	void GetLocationAndDirection(FVector& OutStart, FVector& OutEnd, FVector& OutDirection) override;
 private :
 	UPROPERTY(VisibleDefaultsOnly)
 		class USpringArmComponent* SpringArm; 
 
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 		TSubclassOf<class UCUserWidget_CrossHair> CrossHairClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Camera")
+		TSubclassOf<class UCameraShake> CameraShakeClass;
 
 
 protected :
@@ -66,9 +68,16 @@ private :
 	void OnRifle(); 
 
 	void OnAim(); 
-	void OffAim(); 
+	void OffAim();
+
+	void OnFire();
+	void OffFire();
 
 
 public :
 	FORCEINLINE class ACRifle* GetRifle() override { return Rifle;  }
+
+	void OnFocus() override;
+	void OffFocus() override;
+	void PlayCameraShake();
 };

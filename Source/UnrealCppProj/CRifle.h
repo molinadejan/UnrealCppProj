@@ -25,8 +25,20 @@ private :
 	UPROPERTY(VisibleDefaultsOnly, Category = "Rifle")
 		class UAnimMontage* UngrabMontage;
 
+	UPROPERTY(VisibleDefaultsOnly, Category = "Rifle")
+		class UAnimMontage* FireMontage;
 
+	UPROPERTY(VisibleDefaultsOnly, Category = "Rifle")
+		class UParticleSystem* FlashParticle;
 
+	UPROPERTY(VisibleDefaultsOnly, Category = "Rifle")
+		class UParticleSystem* EjectParticle;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "Rifle")
+		class USoundCue* FireSoundCue;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "Rifle")
+		TSubclassOf<class ACBullet> BulletClass;
 
 public :
 	static ACRifle* Spawn(class UWorld* InWorld, class ACharacter* InOwner); 
@@ -47,7 +59,8 @@ private :
 private :
 	bool bEquipped; 
 	bool bEquipping; 
-	bool bAiming; 
+	bool bAiming;
+	bool bFiring;
 
 public : 
 	FORCEINLINE bool GetEquipped() { return bEquipped;  }
@@ -64,4 +77,8 @@ public :
 
 	void Begin_Aiming(); 
 	void End_Aiming();
+
+	void Begin_Fire();
+	void Firing();
+	void End_Fire();
 };

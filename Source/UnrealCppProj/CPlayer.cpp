@@ -9,6 +9,7 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "CRifle.h"
 #include "Widgets/CUserWidget_CrossHair.h"
+#include "Camera/CameraShake.h"
 
 ACPlayer::ACPlayer()
 {
@@ -44,6 +45,7 @@ ACPlayer::ACPlayer()
 	SpringArm->SocketOffset = FVector(0, 60, 0); 
 
 	CHelpers::GetClass<UCUserWidget_CrossHair>(&CrossHairClass, "WidgetBlueprint'/Game/Widgets/WB_CrossHair.WB_CrossHair_C'"); 
+	CHelpers::GetClass<UCameraShake>(&CameraShakeClass, "Blueprint'/Game/BP_CameraShake.BP_CameraShake_C'");
 }
 
 void ACPlayer::BeginPlay()
@@ -100,6 +102,25 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Rifle", EInputEvent::IE_Pressed, this, &ACPlayer::OnRifle); 
 	PlayerInputComponent->BindAction("Aim", EInputEvent::IE_Pressed, this, &ACPlayer::OnAim);
 	PlayerInputComponent->BindAction("Aim", EInputEvent::IE_Released, this, &ACPlayer::OffAim);
+
+	PlayerInputComponent->BindAction("Fire", EInputEvent::IE_Pressed, this, &ACPlayer::OnFire);
+	PlayerInputComponent->BindAction("Fire", EInputEvent::IE_Released, this, &ACPlayer::OffFire);
+}
+
+void ACPlayer::GetLocationAndDirection(FVector& OutStart, FVector& OutEnd, FVector& OutDirection)
+{
+	OutDirection = Camera->GetForwardVector();
+	FTransform transform = Camera->GetComponentToWorld();
+	FVector cameraLocation = transform.GetLocation();
+
+	OutStart = cameraLocation + OutDirection;
+
+	FVector conDirection = 
+		UKismetMathLibrary::RandomUnitVectorInEllipticalConeInDegrees(OutDirection, 0.2f, 0.3f);
+
+	conDirection *= 3000.0f;
+
+	OutEnd = cameraLocation + conDirection;
 }
 
 void ACPlayer::OnMoveForward(float Axis)
@@ -183,5 +204,30 @@ void ACPlayer::OffAim()
 	OnZoomOut(); 
 	Rifle->End_Aiming();
 	CrossHair->SetVisibility(ESlateVisibility::Hidden);
+}
+
+void ACPlayer::OnFire()
+{
+	Rifle->Begin_Fire();
+}
+
+void ACPlayer::OffFire()
+{
+	Rifle->End_Fire();
+}
+
+void ACPlayer::OnFocus()
+{
+	CrossHair->OnFocus();
+}
+
+void ACPlayer::OffFocus()
+{
+	CrossHair->OffFocus();
+}
+
+void ACPlayer::PlayCameraShake()
+{
+	GetController<APlayerController>()->PlayerCameraManager->PlayCameraShake(CameraShakeClass);
 }
 
